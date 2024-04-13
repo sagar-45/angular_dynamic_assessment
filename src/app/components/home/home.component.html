@@ -1,0 +1,35 @@
+<div class="home">
+    <ng-container *ngFor="let item of data; let index = index">
+        <mat-card>
+            <div class="head">
+                <mat-card-header>
+                    <mat-card-title>{{ item.assessmentName }}</mat-card-title>
+                    <mat-card-subtitle>{{ item.description }}</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                    <p>Body Region:</p>
+                    <ul>
+                        <li *ngFor="let region of item.body_region">{{ region }}</li>
+                    </ul>
+                    <p>Measurements:</p>
+                    <ul>
+                        <li *ngFor="let measurement of item.measurements">
+                            {{ measurement.name }} - {{ measurement.time }}
+                        </li>
+                    </ul>
+                </mat-card-content>
+            </div>
+            <mat-card-footer>
+                <button mat-icon-button color="primary" (click)="viewData(item)">
+                    <mat-icon>visibility</mat-icon>
+                </button>
+                <button mat-icon-button color="accent"  (click)="edit(item,index)">
+                    <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="deleteData(index)">
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </mat-card-footer>
+        </mat-card>
+    </ng-container>
+</div>

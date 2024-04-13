@@ -1,0 +1,324 @@
+<div>
+    <div class="back" (click)="back()">
+        <mat-icon>chevron_left</mat-icon>
+        <p>Assessment</p>
+    </div>
+    <div class="container addCategory">
+        <div class="alert alert-danger" *ngIf="error !== ''" role="alert">
+            {{error}}
+        </div>
+        <p class="title">Create Assessment</p>
+        <hr>
+        <form [formGroup]="assessmentForm" (ngSubmit)="submitAssessment()">
+            <div class="up">
+                <div class="left">
+                    <div class="upper">
+                        <div class="form-group">
+                            <label for="assessmentName">Assessment template</label>
+                            <input type="text" class="form-control" id="assessmentName" placeholder="Assessment Name"
+                                formControlName="assessmentName"
+                                [ngClass]="submitted && getControls['assessmentName'].invalid ? 'error': ''" [readOnly]="edit">
+                        </div>
+                        <div class="form-group body_region">
+                            <label>Body region:</label>
+                            <ng-multiselect-dropdown [placeholder]="'Please select'" [settings]="selectSettings"
+                                [data]="body_parts" formControlName="body_region">
+                            </ng-multiselect-dropdown>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Example textarea</label>
+                        <textarea class="form-control" id="description" rows="3" formControlName="description"
+                            placeholder="Please enter description here (max. 250 characters)."
+                            [ngClass]="submitted && getControls['description'].invalid ? 'error': ''"></textarea>
+                    </div>
+                </div>
+                <div class="right">
+                    <label>Patient measurement</label>
+                    <div class="patient_measurement">
+                        <ng-container formArrayName="measurements">
+                            <ng-container *ngFor="let measurement of measurements.controls; let i = index">
+                                <ng-container [formGroupName]="i">
+                                    <input type="text" class="form-control" formControlName="name"
+                                        [ngClass]="submitted && getMeasurements[i].controls['name'].invalid ? 'error': ''">
+                                    <input type="text" [ngxTimepicker]="picker" class="form-control"
+                                        formControlName="time"
+                                        [ngClass]="submitted && getMeasurements[i].controls['time'].invalid ? 'error': ''">
+                                    <ngx-material-timepicker #picker></ngx-material-timepicker>
+                                    <button *ngIf="i !== 0" mat-icon-button (click)="removeMeasurement(i)" color="warn"
+                                        type="button">
+                                        <mat-icon>delete</mat-icon>
+                                    </button>
+                                </ng-container><br>
+                            </ng-container>
+                        </ng-container>
+                        <button mat-flat-button (click)="addMeasurement()" class="add_button"
+                            type="button"><mat-icon>add</mat-icon> Add
+                            schedules</button>
+                    </div>
+                </div>
+            </div>
+            <div class="down" style="display: flex;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 250px;">Category</th>
+                            <th style="width: 250px">Assessment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <ng-container formArrayName="categories">
+                            <tr *ngFor="let category of categories.controls; let i = index">
+                                <ng-container [formGroupName]="i">
+                                    <td>
+                                        <div class="category_input" [ngClass]="i==currentCategoryIndex ? 'active':''">
+                                            <mat-slide-toggle color="primary" formControlName="categorySlider" (change)="changeCategorySilder($event,i)">
+                                            </mat-slide-toggle>
+                                            <div class="input">
+                                                <mat-icon>edit</mat-icon>
+                                                <input type="text" class="form-control" formControlName="categoryName"
+                                                    (blur)="addAssessment(i,'blur')"
+                                                    [ngClass]="submitted && getCategoryControl(i).controls['categoryName'].invalid ? 'error': ''" />
+                                            </div>
+                                            <mat-icon color="warn" (click)="removeCategory(i)">delete</mat-icon>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <ng-container formArrayName="assessment">
+                                            <ng-container
+                                                *ngFor="let assessment of getAssessment(i).controls; let j = index;let last = last">
+                                                <ng-container [formGroupName]="j">
+                                                    <div class="assessment_input" [ngClass]="(i==currentCategoryIndex && j==currentAssessmentIndex) ? 'active':''">
+                                                        <mat-icon *ngIf="getAssessmentControl(i,j).controls['userIconShow'].value" color="primary">account_circle</mat-icon>
+                                                        <mat-slide-toggle color="primary"
+                                                            formControlName="assessmentSlider" (change)="changeAssessmentSilder($event,i)">
+                                                        </mat-slide-toggle>
+                                                        <div class="input">
+                                                            <mat-icon>edit</mat-icon>
+                                                            <input type="text" class="form-control"
+                                                                formControlName="assessmentName"
+                                                                (blur)="showAssessmentDetails(i, j)"
+                                                                [ngClass]="submitted && getAssessmentControl(i,j).controls['assessmentName'].invalid ? 'error': ''" />
+                                                        </div>
+                                                        <mat-icon color="warn"
+                                                            (click)="removeAssessment(i,j)">delete</mat-icon>
+                                                    </div>
+                                                    <div class="addCategoryBtn" *ngIf="last">
+                                                        <button *ngIf="last" mat-icon-button type="button"
+                                                            (click)="addAssessment(i,'add')">
+                                                            <mat-icon>add</mat-icon>
+                                                        </button>
+                                                    </div>
+                                                </ng-container>
+                                            </ng-container>
+                                        </ng-container>
+                                    </td>
+                                </ng-container>
+                            </tr>
+                            <tr>
+                                <td class="addCategoryBtn">
+                                    <button mat-icon-button type="button" (click)="addCategory()">
+                                        <mat-icon>add</mat-icon>
+                                    </button>
+                                </td>
+                                <td></td>
+                                <td style="border: 0px;"></td>
+                            </tr>
+                        </ng-container>
+                    </tbody>
+                </table>
+                <div *ngIf="showDetails">
+                    <p class="title">Assessment Details</p>
+                    <table class="assessment_details" [formGroup]="getAssessmentDetails()">
+                        <tr class="row">
+                            <th class="col-3">Type</th>
+                            <td class="col-9 type">
+                                <div class="row">
+                                    <select class="form-select col type_select" formControlName="assessmentType"
+                                        [ngClass]="submitted && getAssessmentDetails().controls['assessmentType'].invalid ? 'error': ''"
+                                        (change)="getUnits()">
+                                        <option selected disabled value="">Please select</option>
+                                        <option *ngFor="let type of assessmentTypes" [value]="type">{{type}}</option>
+                                    </select>
+                                    <div class="col slider">
+                                        <mat-slide-toggle color="primary" formControlName="patientAssessment" (change)="changePatientAssessment($event)"> Patient
+                                            assessment
+                                        </mat-slide-toggle>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <ng-container *ngIf="getAssessmentDetails().controls['assessmentType'].value !== ''">
+                            <tr class="row">
+                                <th class="col-3">Unit</th>
+                                <td class="col-4">
+                                    <select class="form-select col" formControlName="unit"
+                                        [ngClass]="submitted && getAssessmentDetails().controls['unit'].invalid ? 'error': ''">
+                                        <option selected disabled value="">Please select</option>
+                                        <option *ngFor="let item of units;" [value]="item">{{item}}</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr class="row">
+                                <th class="col-3">Value range</th>
+                                <td class="col-4 range">
+                                    <div class="row">
+                                        <div>
+                                            <input type="number" (input)="checkRangeValidation()"
+                                                class="form-control col" formControlName="rangeStart"
+                                                [ngClass]="submitted && getAssessmentDetails().controls['rangeStart'].invalid ? 'error': ''">
+                                        </div>
+                                        <p class="col text-center">to</p>
+                                        <div>
+                                            <input type="number" class="form-control col"
+                                                (input)="checkRangeValidation()" formControlName="rangeEnd"
+                                                [ngClass]="submitted && getAssessmentDetails().controls['rangeEnd'].invalid ? 'error': ''">
+                                            <span *ngIf="showGreaterNumberError" class="error_text">Please enter number
+                                                between
+                                                {{getAssessmentDetails().controls['rangeStart'].value}} to 99999.</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="row">
+                                <th class="col-3">Measurement type</th>
+                                <td class="col-4">
+                                    <mat-slide-toggle color="primary" class="mt-2" formControlName="measurementType"
+                                        (change)="sideComparison($event)"> Side
+                                        comparison
+                                    </mat-slide-toggle>
+                                </td>
+                            </tr>
+                            <tr class="row">
+                                <th class="col-3">Measuring region</th>
+                                <td class="col-4">
+                                    <textarea class="form-control" rows="3" formControlName="measuringRegion"
+                                        placeholder="e.g Body region (right)"
+                                        [ngClass]="submitted && getAssessmentDetails().controls['measuringRegion'].invalid ? 'error': ''"></textarea>
+                                </td>
+                            </tr>
+                            <tr class="row" *ngIf="getAssessmentDetails().controls['measurementType'].value">
+                                <th class="col-3">Reference region</th>
+                                <td class="col-4">
+                                    <textarea class="form-control" rows="3" formControlName="referenceRegion"
+                                        placeholder="e.g Body region (left)"
+                                        [ngClass]="submitted && getAssessmentDetails().controls['referenceRegion'].invalid ? 'error': ''"></textarea>
+                                </td>
+                            </tr>
+                            <tr class="row">
+                                <th class="col-3">Measurements</th>
+                                <td class="col-4">
+                                    <ng-multiselect-dropdown
+                                        *ngIf="!getAssessmentDetails().controls['measurementType'].value"
+                                        [settings]="measurementSettings" [data]="measurementWithoutComparison"
+                                        [formControl]="getMeasurementsTypeControl" (onSelect)="onItemSelect($event)"
+                                        (onDeSelect)="onDeSelect($event)">
+                                    </ng-multiselect-dropdown>
+
+                                    <ng-multiselect-dropdown
+                                        *ngIf="getAssessmentDetails().controls['measurementType'].value"
+                                        [settings]="measurementSettings" [data]="measurementWithComparison"
+                                        [formControl]="getMeasurementsTypeControl" (onSelect)="onItemSelect($event)"
+                                        (onDeSelect)="onDeSelect($event)">
+                                    </ng-multiselect-dropdown>
+                                </td>
+                            </tr>
+                            <tr class="row">
+                                <th class="col-3">Goals</th>
+                                <td class="col-9">
+                                    <div class="row goals my-2" *ngIf="getMeasurementsType('Simple')">
+                                        <select class="form-select col-3" formControlName="goalsSimpleType"
+                                            [ngClass]="submitted && getAssessmentDetails().controls['goalsSimpleType'].invalid ? 'error': ''">
+                                            <option *ngFor="let option of goalsOptions" [value]="option">{{option}}
+                                            </option>
+                                        </select>
+                                        <div>
+                                            <input class="form-control col" type="number"
+                                                formControlName="goalsSimpleValue" (input)="isValueLessthan()"
+                                                [ngClass]="submitted && getAssessmentDetails().controls['goalsSimpleValue'].invalid ? 'error': ''" />
+                                            <span class="error_text" *ngIf="showErrorOfGoal">Please enter a value grater
+                                                than of equal to
+                                                {{getAssessmentDetails().controls['rangeStart'].value}}</span>
+                                        </div>
+                                        <span class="col">{{getAssessmentDetails().controls['unit'].value}}</span>
+                                    </div>
+
+                                    <div class="row goals my-2" *ngIf="getMeasurementsType('Error rate')">
+                                        <select class="form-select col-3" formControlName="goalsErrorType"
+                                            [ngClass]="submitted && getAssessmentDetails().controls['goalsErrorType'].invalid ? 'error': ''">
+                                            <option *ngFor="let option of goalsOptions" [value]="option">{{option}}
+                                            </option>
+                                        </select>
+                                        <div>
+                                            <input class="form-control col" type="number"
+                                                formControlName="goalsErrorValue"
+                                                [ngClass]="submitted && getAssessmentDetails().controls['goalsErrorValue'].invalid ? 'error': ''" />
+                                        </div>
+                                        <span class="col">% Error rate</span>
+                                    </div>
+
+                                    <div class="row goals my-2" *ngIf="getMeasurementsType('Difference')">
+                                        <select class="form-select col-3" formControlName="goalsDifferenceType"
+                                            [ngClass]="submitted && getAssessmentDetails().controls['goalsDifferenceType'].invalid ? 'error': ''">
+                                            <option *ngFor="let option of goalsOptions" [value]="option">{{option}}
+                                            </option>
+                                        </select>
+                                        <div>
+                                            <input class="form-control col" type="number"
+                                                formControlName="goalsDifferenceValue"
+                                                [ngClass]="submitted && getAssessmentDetails().controls['goalsDifferenceValue'].invalid ? 'error': ''" />
+                                        </div>
+                                        <span class="col">Number(Difference to the reference region)</span>
+                                    </div>
+
+                                    <div class="row goals" *ngIf="getMeasurementsType('Comparison')">
+                                        <select class="form-select col-3" formControlName="goalsComparisonType"
+                                            [ngClass]="submitted && getAssessmentDetails().controls['goalsComparisonType'].invalid ? 'error': ''">
+                                            <option *ngFor="let option of goalsOptions" [value]="option">{{option}}
+                                            </option>
+                                        </select>
+                                        <div>
+                                            <input class="form-control col" type="number"
+                                                formControlName="goalsComparisonValue"
+                                                [ngClass]="submitted && getAssessmentDetails().controls['goalsComparisonValue'].invalid ? 'error': ''" />
+                                        </div>
+                                        <span class="col">% reference region</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="row">
+                                <th class="col-3">Description</th>
+                                <textarea class="col form-control" row="4" formControlName="description"
+                                    [ngClass]="submitted && getAssessmentDetails().controls['description'].invalid ? 'error': ''"></textarea>
+                            </tr>
+                        </ng-container>
+                        <tr class="row">
+                            <th class="col-3">Routine</th>
+                            <ng-multiselect-dropdown class="col-9" [settings]="routineSetting" [data]="routines"
+                                [formControl]="getRoutine"
+                                [ngClass]="submitted && getAssessmentDetails().controls['routine'].invalid ? 'error': ''">
+                            </ng-multiselect-dropdown>
+                        </tr>
+                        <tr class="row">
+                            <th class="col-3">Times</th>
+                            <ng-multiselect-dropdown class="col-9" [settings]="timeSettings" [data]="getTimes()"
+                                [formControl]="getTimesControl"
+                                [ngClass]="submitted && getAssessmentDetails().controls['times'].invalid ? 'error': ''">
+                            </ng-multiselect-dropdown>
+                        </tr>
+                        <button mat-button color="primary" type="button" (click)="resetValue()">Reset Value</button>
+                        <ng-container *ngIf="assessmentForm.valid">
+                            <app-line-chart [rangeStart]="getAssessmentDetails().controls['rangeStart'].value"
+                                [rangeEnd]="getAssessmentDetails().controls['rangeEnd'].value"></app-line-chart>
+                        </ng-container>
+                    </table>
+                </div>
+            </div>
+            <hr>
+            <div class="submit_cancel">
+                <button mat-flat-button color="primary" type="submit">Submit</button>
+                <button mat-button type="button" (click)="back()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>

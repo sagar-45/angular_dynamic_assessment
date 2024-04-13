@@ -1,0 +1,22 @@
+.home {
+  display: flex;
+  margin: 20px auto;
+  flex-wrap: wrap;
+  mat-card {
+    max-width: 200px;
+    min-height: 400px;
+    margin: 10px;
+    min-width: 200px;
+    border: 1px solid rgb(87, 21, 194);
+
+    .head{
+      height: 350px;
+    }
+    mat-card-footer{
+      text-align: center;
+      button {
+        margin: 0px 10px;
+      }
+    }
+  }
+}

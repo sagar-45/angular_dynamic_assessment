@@ -1,0 +1,8 @@
+<form [formGroup]="form" (ngSubmit)="submitForm()">
+<ng-container *ngFor="let control of controls" [ngSwitch]="control.controlType">
+    <app-label *ngSwitchCase="'label'"></app-label>
+    <app-input [form]="form" [control]="control" *ngSwitchCase="'input'"></app-input>
+    <app-select [form]="form" [control]="control" *ngSwitchCase="'select'"></app-select>
+</ng-container>
+<button type="submit">Submit</button>
+</form>

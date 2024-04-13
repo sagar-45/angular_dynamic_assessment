@@ -1,0 +1,71 @@
+<div class="view">
+    <div class="back" (click)="back()">
+        <mat-icon>chevron_left</mat-icon>
+        <p>Assessment</p>
+    </div>
+    <div class="assessment">
+        <div class="header">
+            {{data.assessmentName}}
+        </div>
+        <div class="details">
+            <div class="up">
+                <div class="description">
+                    <h3>Description</h3>
+                    <p>{{data.description}}</p>
+                </div>
+                <div class="body_region">
+                    <h3>Body Region:</h3>
+                    <p>{{data.body_region}}</p>
+                </div>
+            </div>
+            <div class="table">
+                <table>
+                    <tr>
+                        <th class="data">Name</th>
+                        <th class="data">Unit</th>
+                        <th class="data">Measurement type</th>
+                        <th class="data">Simple</th>
+                        <th class="data">Error rate</th>
+                        <th class="data">Difference</th>
+                        <th class="data">Comparison</th>
+                        <th class="data">Status</th>
+                    </tr>
+
+                    <tr class="accordion" id="accordionExample">
+                        <td colspan="8">
+                        <div class="accordion-item" *ngFor="let item of data.categories; let i = index">
+                            <h2 class="accordion-header" [id]="'heading'+i">
+
+                                <button class="accordion-button" [ngClass]="{ 'collapsed': i != 0 }" type="button"
+                                    data-bs-toggle="collapse" [attr.data-bs-target]="'#collapse'+i" aria-expanded="true"
+                                    [attr.aria-controls]="'collapse'+i">
+                                    {{item.categoryName}}
+                                </button>
+                            </h2>
+                            <div [id]="'collapse'+i" class="accordion-collapse collapse" [ngClass]="{ 'show': i == 0 }"
+                                [attr.aria-labelledby]="'heading'+i" data-bs-parent="#accordionExample">
+                                <table class="accordion-body">
+                                    <tr class="assess" *ngFor="let assessment of item.assessment">
+
+                                            <td class="data">{{assessment.assessmentName}} <mat-icon *ngIf="assessment.userIconShow" color="primary">account_circle</mat-icon></td>
+                                            <td class="data">{{assessment.assessmentDetails.unit}}</td>
+                                            <td class="data">{{assessment.assessmentDetails.measurementType? 'Two Point': 'One Point'}}</td>
+                                            <td class="data">{{assessment.assessmentDetails.goalsSimpleValue ? assessment.assessmentDetails.goalsSimpleValue + " " +assessment.assessmentDetails.unit: '-'}}</td>
+                                            <td class="data">{{assessment.assessmentDetails.goalsErrorValue ? (assessment.assessmentDetails.goalsErrorValue + " %"): '-'}}</td>
+                                            <td class="data">{{assessment.assessmentDetails.goalsDifferenceValue ? (assessment.assessmentDetails.goalsDifferenceValue + " " +assessment.assessmentDetails.unit): '-'}}</td>
+                                            <td class="data">{{assessment.assessmentDetails.goalsComparisonValue ? (assessment.assessmentDetails.goalsComparisonValue + " %"): '-'}}</td>
+                                            <td class="data"><mat-slide-toggle color="primary" [disabled]="true" [checked]="assessment.assessmentSlider">
+                                            </mat-slide-toggle></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </td>
+
+                    </tr>
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

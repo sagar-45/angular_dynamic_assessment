@@ -1,0 +1,86 @@
+.view {
+    box-shadow: none;
+    .back {
+        width: 90%;
+        margin: 10px auto;
+        font-size: 20px;
+        display: flex;
+        color: rgb(121, 77, 192);
+        p{
+            margin-top: 2px;
+        }
+    }
+    .assessment {
+        width: 90%;
+        margin: 40px auto;
+        border: 1px solid rgb(227, 224, 224);
+        .header {
+            background-color:  rgb(121, 77, 192);
+            color: #fff;
+            padding: 20px 30px;
+            font-size: 30px;
+        }
+
+        .details {
+            padding: 20px 30px;
+
+            .up {
+                display: flex;
+                div {
+                    padding: 10px;
+                    border: 1px solid rgb(195, 193, 193);
+                    border-radius: 5px;
+                    width: 40%;
+                    font-size: 16px;
+                    margin-right: 20px;
+                    h3{
+                        font-weight: 600;
+                        // margin: 0px !important;
+                    }
+                }
+                .body_region {
+                    background-color: #ebe7f5;
+                    width: 20%;
+                    word-wrap: break-word;
+                }
+            }
+
+            .table {
+                margin: 30px 0px 0px 0px;
+                font-size: 15px;
+                table {
+                    width: 100%;
+                    th {
+                        border-bottom: 0px;
+                    }
+                    .data {
+                        width: 10%;
+                    }
+                    .accordion {
+                        column-span: 10;
+                        .accordion-header {
+                            border-bottom: 1px solid rgb(121, 77, 192);
+                        }
+
+                        .accordion-item {
+                            border: 0px !important;
+                        }
+
+                        .accordion-button {
+                            padding: 0px !important;
+                            color:  rgb(121, 77, 192);
+                            font-size: 25px;
+                            &:focus {
+                                box-shadow: none;
+                            }
+                        }
+
+                        .accordion-button:not(.collapsed) {
+                            background-color: #fff !important;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
